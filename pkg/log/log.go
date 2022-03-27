@@ -1,6 +1,9 @@
 package log
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -11,6 +14,17 @@ var Sugare *zap.SugaredLogger
 
 // LumberJackLogger export var
 var LumberJackLogger *lumberjack.Logger
+
+var l *Logger
+
+type Logger struct {
+	*zap.Logger
+	opts *Options
+}
+
+type Options struct {
+	CtxKey string //通过 ctx 传递 hlog 对象
+}
 
 type LogLevel string
 
@@ -29,6 +43,29 @@ type LogConfig struct {
 	Compress bool   // 自导打 gzip包 默认false
 	FilePath string // 日志文件输出路径
 	Level    LogLevel
+}
+
+// GetLogger returns logger
+func GetLogger() *Logger {
+	if l == nil {
+		fmt.Println("Please initialize the hlog service first")
+		return nil
+	}
+	return l
+}
+
+func (l *Logger) GetCtx(ctx context.Context) *zap.Logger {
+	log, ok := ctx.Value(l.opts.CtxKey).(*zap.Logger)
+	if ok {
+		return log
+	}
+	return l.Logger
+}
+
+func (l *Logger) AddCtx(ctx context.Context, field ...zap.Field) (context.Context, *zap.Logger) {
+	log := l.With(field...)
+	ctx = context.WithValue(ctx, l.opts.CtxKey, log)
+	return ctx, log
 }
 
 // Init def
@@ -63,8 +100,13 @@ func Init(config *LogConfig) {
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 
 	core := zapcore.NewCore(encoder, writer, levelMap[config.Level])
-	logger := zap.New(core, zap.AddCaller()) // 增加caller信息
-	Sugare = logger.Sugar()
+	l = &Logger{
+		opts: &Options{
+			CtxKey: "log_key",
+		},
+	}
+	l.Logger = zap.New(core, zap.AddCaller()) // 增加caller信息
+	Sugare = l.Logger.Sugar()
 
 	Sugare.Infof("zap log init ok.")
 }
