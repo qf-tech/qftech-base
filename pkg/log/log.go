@@ -37,12 +37,20 @@ const (
 	FatalLevel LogLevel = "fatal"
 )
 
+type LogFormat string
+
+const (
+	JsonType   LogFormat = "json"   // json 结构化字符串
+	CommonType LogFormat = "common" // 普通格式字符串
+)
+
 type LogConfig struct {
 	MaxCount int    // 日志文件保存最大数
 	MaxSize  int    // 日志单个文件最大保存大小，单位为M
 	Compress bool   // 自导打 gzip包 默认false
 	FilePath string // 日志文件输出路径
 	Level    LogLevel
+	Format   LogFormat // 日志格式
 }
 
 // GetLogger returns logger
@@ -77,6 +85,7 @@ func Init(config *LogConfig) {
 			Compress: true,
 			FilePath: "./log/server.log",
 			Level:    InfoLevel,
+			Format:   CommonType,
 		}
 	}
 	levelMap := map[LogLevel]zapcore.Level{
@@ -97,7 +106,12 @@ func Init(config *LogConfig) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder   // 修改时间戳的格式
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 日志级别使用大写显示
+
+	// 日志内容默认格式为普通格式字符串，设置 json 后为 json 结构化格式
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
+	if config.Format == JsonType {
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
+	}
 
 	core := zapcore.NewCore(encoder, writer, levelMap[config.Level])
 	l = &Logger{
