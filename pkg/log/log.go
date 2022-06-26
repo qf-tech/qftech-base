@@ -85,7 +85,7 @@ func Init(config *LogConfig) {
 			Compress: true,
 			FilePath: "./log/server.log",
 			Level:    InfoLevel,
-			Format:   CommonType,
+			Format:   JsonType,
 		}
 	}
 	levelMap := map[LogLevel]zapcore.Level{
@@ -96,7 +96,7 @@ func Init(config *LogConfig) {
 		Filename: config.FilePath, // 日志输出文件
 		MaxSize:  config.MaxSize,  // 日志最大保存10M
 		// MaxBackups: 5,  // 就日志保留5个备份
-		MaxAge:   config.MaxCount, // 最多保留30个日志 和MaxBackups参数配置1个就可以
+		MaxAge:   config.MaxCount, // 最多保留30天日志 和MaxBackups参数配置1个就可以
 		Compress: config.Compress, // 自导打 gzip包 默认false
 	}
 
