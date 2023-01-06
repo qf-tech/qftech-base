@@ -1,0 +1,4 @@
+github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/qf-tech/qftech-base v1.0.0 h1:w6UnoaNkMtA/z/QHLWP332ZDYYo1ahinHJeh9VEoGok=
+github.com/qf-tech/qftech-base v1.0.0/go.mod h1:2CwcjBpSXCRijAtg1mS5xKCDKdu0rJY24BRlG6rVvsc=
